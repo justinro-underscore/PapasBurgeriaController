@@ -6,10 +6,18 @@
 import pyautogui
 import cv2
 import os
+import sys
 from getch import getch
-from states import papasBurgeriaStates, State, MouseEvent, MouseEventType
+from states import papasBurgeriaStates, State, MouseEvent, MouseEventType, get_relative_coords
 
 # https://www.coolmathgames.com/0-papas-burgeria
+
+class Box:
+  def __init__(self, left, top, width, height):
+    self.left = left
+    self.top = top
+    self.width = width
+    self.height = height
 
 class Runner:
 
@@ -22,11 +30,6 @@ class Runner:
       return gamePos
     else:
       raise RuntimeError("Could not find Papa's Burgeria Title")
-  
-  def __get_relative_coords(self, coords):
-    x_factor = MouseEvent.coords_ref_frame[0] / self.screen_pos.width
-    y_factor = MouseEvent.coords_ref_frame[1] / self.screen_pos.height
-    return [(coords[0] * x_factor) + self.screen_pos.left, (coords[1] * y_factor) + self.screen_pos.top]
 
   def on_keystroke(self, keystroke):
     mouse_event = None
@@ -37,11 +40,11 @@ class Runner:
 
     if mouse_event:
       if mouse_event.type == MouseEventType.SINGLE:
-        coords = self.__get_relative_coords(mouse_event.coords)
+        coords = get_relative_coords(self.screen_pos, mouse_event.coords)
         pyautogui.click(x=coords[0], y=coords[1])
       elif mouse_event.type == MouseEventType.DRAG:
-        start_coords = self.__get_relative_coords(mouse_event.coords[0])
-        end_coords = self.__get_relative_coords(mouse_event.coords[1])
+        start_coords = get_relative_coords(self.screen_pos, mouse_event.coords[0])
+        end_coords = get_relative_coords(self.screen_pos, mouse_event.coords[1])
         pyautogui.moveTo(start_coords[0], start_coords[1])
         pyautogui.dragTo(end_coords[0], end_coords[1], 0.2, button='left')
       elif mouse_event.type == MouseEventType.DOUBLE:
@@ -53,8 +56,8 @@ class Runner:
       new_state = None
       if mouse_event.next_state:
         new_state = mouse_event.next_state
-      elif mouse_event.check_state:
-        new_state = mouse_event.check_state()
+      elif mouse_event.post_func:
+        new_state = mouse_event.post_func(self.screen_pos)
 
       if new_state:
         if new_state in papasBurgeriaStates:
@@ -66,8 +69,20 @@ class Runner:
 
   def run(self):
     try:
-      self.screen_pos = self.__pull_screen_pos()
-      self.curr_state = papasBurgeriaStates["title_screen"]
+      if len(sys.argv) > 1:
+        if len(sys.argv) > 2:
+          self.screen_pos = Box(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+        else:
+          default_box = Box(564, 349, 641, 482)
+          self.screen_pos = default_box
+
+        if sys.argv[1] in papasBurgeriaStates:
+          self.curr_state = papasBurgeriaStates[sys.argv[1]]
+        else:
+          raise RuntimeError("Debug state not found")
+      else:
+        self.screen_pos = self.__pull_screen_pos()
+        self.curr_state = papasBurgeriaStates["title_screen"]
       print("Game found! Begin input")
       self.curr_state.print_events()
       keystroke = getch()
