@@ -4,8 +4,9 @@ from time import sleep
 
 class MouseEventType(enum.Enum):
   SINGLE = 1
-  DOUBLE = 2
-  MULTIPLE = 3
+  DRAG = 2
+  DOUBLE = 3
+  MULTIPLE = 4
 
 class MouseEvent:
   coords_ref_frame = [642, 481] # Defines size of window all coords are based on
@@ -18,23 +19,26 @@ class MouseEvent:
     self.next_state = next_state
 
 class State:
-  def __init__(self, events):
-    if len(events) > 9:
-      raise ValueError("Too many functions!")
-    self.events = [None] * 9
-    for i, event in enumerate(events):
-      self.events[i] = event
+  def __init__(self, num_events, add_events=None):
+    if len(num_events) > 9:
+      raise ValueError("Too many events!")
+    self.num_events = [None] * 9
+    for i, event in enumerate(num_events):
+      self.num_events[i] = event
+    self.add_events = add_events
   
   def print_events(self):
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    for i, event in enumerate(self.events):
+    for i, event in enumerate(self.num_events):
       if event:
         print(str(i + 1) + ": " + event.name)
       else:
-        return
+        break
+    if self.add_events:
+      for key, event in self.add_events.items():
+        print(key + ": " + event.name)
 
 def check_for_existing_save():
-  sleep(0.5)
   select = pyautogui.locateOnScreen("PapasSelectCharacter.png", confidence=0.9)
   if select:
     return "player_select"
@@ -78,5 +82,19 @@ papasBurgeriaStates = {
     MouseEvent("Order Station", MouseEventType.SINGLE, [219, 455], next_state="order_station"),
     MouseEvent("Grill Station", MouseEventType.SINGLE, [327, 455], next_state="grill_station"),
     MouseEvent("Build Station", MouseEventType.SINGLE, [426, 455], next_state="build_station"),
-  ]),
+  ],
+  add_events={
+    "B": MouseEvent("Top Bun", MouseEventType.DRAG, [[58, 114], [324, 75]]),
+    "t": MouseEvent("Tomato", MouseEventType.DRAG, [[58, 161], [324, 75]]),
+    "l": MouseEvent("Lettuce", MouseEventType.DRAG, [[58, 213], [324, 75]]),
+    "o": MouseEvent("Onion", MouseEventType.DRAG, [[58, 261], [324, 75]]),
+    "p": MouseEvent("Pickle", MouseEventType.DRAG, [[58, 304], [324, 75]]),
+    "P": MouseEvent("Patty", MouseEventType.DRAG, [[190, 400], [324, 75]]),
+    "c": MouseEvent("Cheese", MouseEventType.DRAG, [[58, 353], [324, 75]]),
+    "b": MouseEvent("Bottom Bun", MouseEventType.DRAG, [[58, 398], [324, 75]]),
+    "k": MouseEvent("Ketchup", MouseEventType.DRAG, [[446, 373], [324, 75]]),
+    "m": MouseEvent("Mustard", MouseEventType.DRAG, [[500, 373], [324, 75]]),
+    "M": MouseEvent("Mayo", MouseEventType.DRAG, [[553, 373], [324, 75]]),
+    "q": MouseEvent("BBQ", MouseEventType.DRAG, [[605, 373], [324, 75]]),
+  }),
 }

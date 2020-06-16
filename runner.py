@@ -29,32 +29,40 @@ class Runner:
     return [(coords[0] * x_factor) + self.screen_pos.left, (coords[1] * y_factor) + self.screen_pos.top]
 
   def on_keystroke(self, keystroke):
-    try:
-      keycode = int(keystroke)
-    except:
-      return
-    if keycode >= 0 and keycode <= 9:
-      index = keycode - 1
-      mouse_event = self.curr_state.events[index]
-      if mouse_event:
-        if mouse_event.type == MouseEventType.SINGLE:
-          coords = self.__get_relative_coords(mouse_event.coords)
-          pyautogui.click(x=coords[0], y=coords[1])
-          os.system("wmctrl -a Terminal")
+    mouse_event = None
+    if keystroke in list(map(str, range(10))):
+      mouse_event = self.curr_state.num_events[int(keystroke) - 1]
+    elif self.curr_state.add_events and keystroke in self.curr_state.add_events:
+      mouse_event = self.curr_state.add_events[keystroke]
 
-          if mouse_event.next_state:
-            new_state = mouse_event.next_state
-          elif mouse_event.check_state:
-            new_state = mouse_event.check_state()
-          if new_state and new_state in papasBurgeriaStates:
-            self.curr_state = papasBurgeriaStates[new_state]
-          else:
-            raise RuntimeError("State {" + new_state + "} either doesn't exist or is not in defined states")
-        elif mouse_event.type == MouseEventType.DOUBLE:
-          print("Not implemented")
-        elif mouse_event.type == MouseEventType.MULTIPLE:
-          print("Not implemented")
-        self.curr_state.print_events()
+    if mouse_event:
+      if mouse_event.type == MouseEventType.SINGLE:
+        coords = self.__get_relative_coords(mouse_event.coords)
+        pyautogui.click(x=coords[0], y=coords[1])
+      elif mouse_event.type == MouseEventType.DRAG:
+        start_coords = self.__get_relative_coords(mouse_event.coords[0])
+        end_coords = self.__get_relative_coords(mouse_event.coords[1])
+        pyautogui.moveTo(start_coords[0], start_coords[1])
+        pyautogui.dragTo(end_coords[0], end_coords[1], 0.2, button='left')
+      elif mouse_event.type == MouseEventType.DOUBLE:
+        raise RuntimeError("Not implemented")
+      elif mouse_event.type == MouseEventType.MULTIPLE:
+        raise RuntimeError("Not implemented")
+
+      os.system("wmctrl -a Terminal")
+      new_state = None
+      if mouse_event.next_state:
+        new_state = mouse_event.next_state
+      elif mouse_event.check_state:
+        new_state = mouse_event.check_state()
+
+      if new_state:
+        if new_state in papasBurgeriaStates:
+          self.curr_state = papasBurgeriaStates[new_state]
+        else:
+          raise RuntimeError("State {" + new_state + "} either doesn't exist or is not in defined states")
+      self.curr_state.print_events()
+
 
   def run(self):
     try:
