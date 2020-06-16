@@ -103,7 +103,7 @@ papasBurgeriaStates = {
     MouseEvent("Build Station", MouseEventType.SINGLE, [426, 455], next_state="build_station"),
   ],
   add_events={
-    "B": MouseEvent("Top Bun", MouseEventType.DRAG, [[58, 114], [324, 75]]),
+    "B": MouseEvent("Top Bun", MouseEventType.DRAG, [[58, 114], [324, 75]], next_state="plate_station"),
     "t": MouseEvent("Tomato", MouseEventType.DRAG, [[58, 161], [324, 75]]),
     "l": MouseEvent("Lettuce", MouseEventType.DRAG, [[58, 213], [324, 75]]),
     "o": MouseEvent("Onion", MouseEventType.DRAG, [[58, 261], [324, 75]]),
@@ -117,6 +117,9 @@ papasBurgeriaStates = {
     "q": MouseEvent("BBQ", MouseEventType.DRAG, [[605, 373], [324, 75]]),
     "r": MouseEvent("Remove", MouseEventType.SINGLE, [0, 0], post_func=remove_top_of_burger),
   }),
+  "plate_station": State([
+    MouseEvent("Complete Order", MouseEventType.DRAG, [[560, 170], [190, 351]], next_state="order_station"),
+  ]),
 }
 
 def get_relative_coords(screen_pos, coords):
