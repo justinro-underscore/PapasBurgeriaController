@@ -56,9 +56,27 @@ papasBurgeriaStates = {
   ]),
   "save_screen": State([
     MouseEvent("Upgrade Shop", MouseEventType.SINGLE, [258, 381], next_state="upgrade_shop"),
-    MouseEvent("Continue", MouseEventType.SINGLE, [383, 381], next_state="main_game"),
+    MouseEvent("Continue", MouseEventType.SINGLE, [383, 381], next_state="order_station"),
   ]),
   "cutscene": State([
-    MouseEvent("Skip", MouseEventType.SINGLE, [575, 446], next_state="main_game"),
+    MouseEvent("Skip", MouseEventType.SINGLE, [575, 446], next_state="order_station"),
+  ]),
+  "cutscene": State([
+    MouseEvent("Skip", MouseEventType.SINGLE, [575, 446], next_state="order_station"),
+  ]),
+  "order_station": State([
+    MouseEvent("Order Station", MouseEventType.SINGLE, [219, 455], next_state="order_station"),
+    MouseEvent("Grill Station", MouseEventType.SINGLE, [327, 455], next_state="grill_station"),
+    MouseEvent("Build Station", MouseEventType.SINGLE, [426, 455], next_state="build_station"),
+  ]),
+  "grill_station": State([
+    MouseEvent("Order Station", MouseEventType.SINGLE, [219, 455], next_state="order_station"),
+    MouseEvent("Grill Station", MouseEventType.SINGLE, [327, 455], next_state="grill_station"),
+    MouseEvent("Build Station", MouseEventType.SINGLE, [426, 455], next_state="build_station"),
+  ]),
+  "build_station": State([
+    MouseEvent("Order Station", MouseEventType.SINGLE, [219, 455], next_state="order_station"),
+    MouseEvent("Grill Station", MouseEventType.SINGLE, [327, 455], next_state="grill_station"),
+    MouseEvent("Build Station", MouseEventType.SINGLE, [426, 455], next_state="build_station"),
   ]),
 }
